@@ -1,0 +1,17 @@
+# Conan profile for Windows MSVC builds
+# Save this as profiles/msvc_profile in your Conan cache or use with -pr flag
+
+[settings]
+os=Windows
+arch=x86_64
+compiler=msvc
+compiler.version=194  # Visual Studio 2022 (adjust based on your VS version)
+compiler.cppstd=17    # C++17 standard required for gRPC
+compiler.runtime=dynamic
+build_type=Release
+
+
+[conf]
+# Enable parallel builds
+tools.cmake.cmaketoolchain:generator=Visual Studio 17 2022
+tools.build:jobs=4
