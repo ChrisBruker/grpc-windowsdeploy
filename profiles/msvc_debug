@@ -14,7 +14,3 @@ build_type=Debug
 # Enable parallel builds
 tools.cmake.cmaketoolchain:generator=Visual Studio 17 2022
 tools.build:jobs=4
-
-# MSVC specific configurations
-tools.env:CXXFLAGS=["/Zi"]  # Enable Edit and Continue debugging
-tools.env:CFLAGS=["/Zi"]    # Enable Edit and Continue debugging

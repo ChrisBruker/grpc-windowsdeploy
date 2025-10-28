@@ -65,6 +65,9 @@ class GrpcProjectConan(ConanFile):
     def generate(self):
         # Generate CMake dependencies
         deps = CMakeDeps(self)
+    # Automatically map RelWithDebInfo to Release in generated CMake files
+        deps.build_context_activated = ["Release", "RelWithDebInfo", "Debug"]
+        deps.build_context_suffix = {"RelWithDebInfo": "Release"}
         deps.generate()
 
         # Generate CMake toolchain
