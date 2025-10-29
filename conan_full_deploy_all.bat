@@ -43,6 +43,13 @@ if errorlevel 1 (
     exit /b 1
 )
 
+REM Run Conan install for RelWithDebInfo
+conan install . --build=missing --profile:a=msvc_release -s build_type=RelWithDebInfo --deployer=full_deploy
+if errorlevel 1 (
+    echo Conan install failed for RelWithDebInfo.
+    exit /b 1
+)
+
 REM Copy the generated CMake files for consumers without Conan
 set GENERATORS_DIR=%~dp0build\generators
 set DEPLOY_CMAKE_DIR=%~dp0full_deploy\cmake

@@ -1,6 +1,6 @@
 from conan import ConanFile
 from conan.tools.cmake import CMakeToolchain, CMake, cmake_layout, CMakeDeps
-from conan.tools.files import copy
+from conan.tools.files import copy, save
 from conan.tools.microsoft import is_msvc
 import os
 
@@ -63,49 +63,12 @@ class GrpcProjectConan(ConanFile):
         cmake_layout(self)
     
     def generate(self):
-        # Generate CMake dependencies
         deps = CMakeDeps(self)
-    # Automatically map RelWithDebInfo to Release in generated CMake files
-        deps.build_context_activated = ["Release", "RelWithDebInfo", "Debug"]
-        deps.build_context_suffix = {"RelWithDebInfo": "Release"}
         deps.generate()
 
-        # Generate CMake toolchain
         tc = CMakeToolchain(self)
-
-        # Configure build types and MSVC-specific settings
-        if is_msvc(self):
-            # Set ZI flag for MSVC compiler for Debug only
-            if self.settings.build_type == "Debug":
-                tc.variables["CMAKE_CXX_FLAGS_DEBUG"] = "/MDd /ZI /Ob0 /Od /RTC1"
-                tc.variables["CMAKE_C_FLAGS_DEBUG"] = "/MDd /ZI /Ob0 /Od /RTC1"
-            # Remove debug info flags from Release and RelWithDebInfo
-            if self.settings.build_type == "RelWithDebInfo":
-                tc.variables["CMAKE_CXX_FLAGS_RELWITHDEBINFO"] = "/MD /O2 /Ob1 /DNDEBUG"
-                tc.variables["CMAKE_C_FLAGS_RELWITHDEBINFO"] = "/MD /O2 /Ob1 /DNDEBUG"
-            if self.settings.build_type == "Release":
-                tc.variables["CMAKE_CXX_FLAGS_RELEASE"] = "/MD /O2 /GL /DNDEBUG"
-                tc.variables["CMAKE_C_FLAGS_RELEASE"] = "/MD /O2 /GL /DNDEBUG"
-                tc.variables["CMAKE_EXE_LINKER_FLAGS_RELEASE"] = "/OPT:REF /OPT:ICF"
-                tc.variables["CMAKE_MODULE_LINKER_FLAGS_RELEASE"] = "/OPT:REF /OPT:ICF"
-                tc.variables["CMAKE_SHARED_LINKER_FLAGS_RELEASE"] = "/OPT:REF /OPT:ICF"
-
-        # Set output directories for Release and RelWithDebInfo to the same folder
-        tc.variables["CMAKE_RUNTIME_OUTPUT_DIRECTORY_RELEASE"] = "${CMAKE_BINARY_DIR}/release"
-        tc.variables["CMAKE_RUNTIME_OUTPUT_DIRECTORY_RELWITHDEBINFO"] = "${CMAKE_BINARY_DIR}/release"
-        tc.variables["CMAKE_LIBRARY_OUTPUT_DIRECTORY_RELEASE"] = "${CMAKE_BINARY_DIR}/release"
-        tc.variables["CMAKE_LIBRARY_OUTPUT_DIRECTORY_RELWITHDEBINFO"] = "${CMAKE_BINARY_DIR}/release"
-        tc.variables["CMAKE_ARCHIVE_OUTPUT_DIRECTORY_RELEASE"] = "${CMAKE_BINARY_DIR}/release"
-        tc.variables["CMAKE_ARCHIVE_OUTPUT_DIRECTORY_RELWITHDEBINFO"] = "${CMAKE_BINARY_DIR}/release"
-
-        # Additional CMake configurations
-        tc.variables["CMAKE_VERBOSE_MAKEFILE"] = "ON"
-        tc.variables["CMAKE_EXPORT_COMPILE_COMMANDS"] = "ON"
-
-        # gRPC specific configurations
-        tc.variables["CMAKE_CXX_STANDARD"] = "17"
-        tc.variables["CMAKE_CXX_STANDARD_REQUIRED"] = "ON"
-
+        # Inject custom MSVC toolchain for all builds
+        tc.user_toolchain = [os.path.join(self.source_folder, "msvc_conan_toolchain.cmake")]
         tc.generate()
     
     def build(self):
@@ -141,8 +104,6 @@ class GrpcProjectConan(ConanFile):
         # Platform-specific configurations
         if self.settings.os == "Windows":
             self.cpp_info.system_libs.extend(["ws2_32", "wsock32"])
-        elif self.settings.os == "Linux":
-            self.cpp_info.system_libs.extend(["pthread", "m", "dl"])
         
         # Compiler-specific flags
         if is_msvc(self):
