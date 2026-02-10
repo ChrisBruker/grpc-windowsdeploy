@@ -5,13 +5,18 @@
 os=Windows
 arch=x86_64
 compiler=msvc
-compiler.version=194  # Visual Studio 2022 (adjust based on your VS version)
-compiler.cppstd=17    # C++17 standard required for gRPC
+# Visual Studio 2026 (adjust based on your VS version)
+compiler.version=195
+# C++17 standard required for gRPC
+compiler.cppstd=17
 compiler.runtime=dynamic
 build_type=Release
 
 
 [conf]
 # Enable parallel builds
-tools.cmake.cmaketoolchain:generator=Visual Studio 17 2022
+tools.cmake.cmaketoolchain:generator=Visual Studio 18 2026
 tools.build:jobs=4
+
+[tool_requires]
+cmake/4.2.3

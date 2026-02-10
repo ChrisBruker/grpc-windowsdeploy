@@ -29,24 +29,12 @@ if errorlevel 1 (
     exit /b 1
 )
 
+set PROFILES_DIR=%~dp0profiles
+
 REM Run Conan install for Release
-conan install . --build=missing --profile:a=msvc_release --deployer=full_deploy
+conan install . --build=missing -pr:h=%PROFILES_DIR%\msvc_release -pr:b=%PROFILES_DIR%\msvc_release --deployer=full_deploy
 if errorlevel 1 (
     echo Conan install failed for Release.
-    exit /b 1
-)
-
-REM Run Conan install for Debug
-conan install . --build=missing --profile:a=msvc_debug --deployer=full_deploy
-if errorlevel 1 (
-    echo Conan install failed for Debug.
-    exit /b 1
-)
-
-REM Run Conan install for RelWithDebInfo
-conan install . --build=missing --profile:a=msvc_release -s build_type=RelWithDebInfo --deployer=full_deploy
-if errorlevel 1 (
-    echo Conan install failed for RelWithDebInfo.
     exit /b 1
 )
 

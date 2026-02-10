@@ -7,7 +7,7 @@ import os
 
 class GrpcProjectConan(ConanFile):
     name = "grpc-project"
-    version = "1.0"
+    version = "1.2"
     
     # Package metadata
     description = "gRPC project with comprehensive build configuration"
@@ -22,6 +22,9 @@ class GrpcProjectConan(ConanFile):
     default_options = {
         "shared": False,
         "fPIC": True,
+        "grpc/*:shared": False,
+        "protobuf/*:shared": False,
+        "abseil/*:shared": False,
         "grpc/*:cpp_plugin": True,
         "grpc/*:codegen": True,
         "grpc/*:python_plugin": True,
@@ -48,13 +51,13 @@ class GrpcProjectConan(ConanFile):
     def requirements(self):
         # gRPC and its dependencies
         self.requires("grpc/1.72.0")
-        
+        self.requires("hdf5/1.14.2")
        
 
     
     def build_requirements(self):
         # Build tools
-        self.tool_requires("cmake/[>=3.15]")
+        self.tool_requires("cmake/[>=4.2]")
         if is_msvc(self):
             # Ensure we have the right tools for MSVC builds
             pass
